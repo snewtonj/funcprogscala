@@ -26,18 +26,21 @@ object Main {
    * Exercise 2
    */
   def balance(chars: List[Char]): Boolean = {
-    def doBalance(chars: List[Char], isBalanced: Boolean): Boolean = {
+    def doBalance(chars: List[Char], isBalanced: Boolean, depth: Int): Boolean = {
       if (chars.isEmpty)
-         isBalanced
+         isBalanced && (depth == 0)
       else {
-        val left = chars.head == '('
-        val right = chars.head == ')'
-        val balanced = !left || (right && !isBalanced)
-        doBalance(chars.tail, balanced)
+        if(chars.head == '(')
+          doBalance(chars.tail, false, depth + 1)
+        else
+          if (chars.head == ')')
+            doBalance(chars.tail, !isBalanced || true, depth - 1)
+        else
+          doBalance(chars.tail, isBalanced, depth)
       }
     }
 
-    doBalance(chars, true)
+    doBalance(chars, true, 0)
   }
 
   /**
