@@ -34,7 +34,7 @@ object Main {
           doBalance(chars.tail, false, depth + 1)
         else
           if (chars.head == ')')
-            doBalance(chars.tail, !isBalanced || true, depth - 1)
+            doBalance(chars.tail, true, depth - 1)
         else
           doBalance(chars.tail, isBalanced, depth)
       }
