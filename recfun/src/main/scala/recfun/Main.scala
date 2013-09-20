@@ -26,27 +26,18 @@ object Main {
    * Exercise 2
    */
   def balance(chars: List[Char]): Boolean = {
-    def doBalance(chars: List[Char], depth: Int, isBalanced: Boolean): Boolean = {
+    def doBalance(chars: List[Char], isBalanced: Boolean): Boolean = {
       if (chars.isEmpty)
-         (depth == 0) && isBalanced
+         isBalanced
       else {
-        var newDepth = depth
-        var currentBalance = isBalanced
-        if (chars.head == '(')  {
-          newDepth = depth + 1
-        }
-        if (chars.head == ')') {
-          newDepth = depth - 1
-          // but if we were balanced (depth == 0) we're now unbalanced
-          // and we'll never be balanced again
-          if (newDepth < 0)
-            currentBalance = false;
-        }
-        doBalance(chars.tail, newDepth, currentBalance)
+        val left = chars.head == '('
+        val right = chars.head == ')'
+        val balanced = !left || (right && !isBalanced)
+        doBalance(chars.tail, balanced)
       }
     }
 
-     doBalance(chars, 0, true)
+    doBalance(chars, true)
   }
 
   /**
