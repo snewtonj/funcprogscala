@@ -77,6 +77,7 @@ class FunSetSuite extends FunSuite {
     val s1 = singletonSet(1)
     val s2 = singletonSet(2)
     val s3 = singletonSet(3)
+    val s4 = union(s1, s2)
   }
 
   /**
@@ -107,6 +108,60 @@ class FunSetSuite extends FunSuite {
       assert(contains(s, 1), "Union 1")
       assert(contains(s, 2), "Union 2")
       assert(!contains(s, 3), "Union 3")
+    }
+  }
+
+  test("intersection only contains the elements in both sets") {
+    new TestSets {
+      val s = intersect(s1, s4)
+      assert(contains(s, 1), "Intersect 1")
+      assert(!contains(s, 2), "Intersect 2")
+      assert(!contains(s, 3), "Intersect 3")
+      val s0 = intersect(s1,s3)
+      assert(!contains(s0, 1), "Intersect: empty set 1")
+      assert(!contains(s0, 2), "Intersect: empty set 2")
+      assert(!contains(s0, 3), "Intersect: empty set 3")
+    }
+  }
+
+  test("diff returns elements in 's' that are not in 't'") {
+    new TestSets {
+      val s = diff(s3, s4)
+      assert(contains(s, 3), "diff 3")
+      assert(!contains(s, 1), "diff 1")
+      assert(!contains(s, 2), "diff 2")
+      assert(!contains(s, 0), "diff should never have 0")
+      val sym = diff(s4, s3)
+      assert(contains(sym, 1), "not symmetric 1")
+      assert(contains(sym, 2), "not symmetric 2")
+      assert(!contains(sym, 3), "not symmetric 3")
+      assert(!contains(sym, 0), "diff should never have 0")
+
+      val empty = diff(s1, s1)
+      assert(!contains(empty, 0), "diff of a set with itself should be empty")
+      assert(!contains(empty, 1), "diff of a set with itself should be empty")
+    }
+  }
+
+  test("filter does the same thing as intersect, pretty much") {
+    new TestSets {
+      val s = filter(s1, s4)
+      assert(contains(s, 1), "filter 1")
+      assert(!contains(s, 2), "filter 2")
+      assert(!contains(s, 3), "filter 3")
+      val s0 = filter(s1,s3)
+      assert(!contains(s0, 1), "filter: empty set 1")
+      assert(!contains(s0, 2), "filter: empty set 2")
+      assert(!contains(s0, 3), "filter: empty set 3")
+    }
+  }
+
+  test("forall tests whether a given predicate is true for all elements of the set") {
+    new TestSets {
+      val s1s2 = forall(s1, s2)
+      assert(!s1s2, "forall(s1, s2) should be false")
+      val sN = forall(s1, s1)
+      assert(sN, "forall(s1, s1) should be true")
     }
   }
 }
