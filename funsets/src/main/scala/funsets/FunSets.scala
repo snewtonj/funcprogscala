@@ -12,6 +12,8 @@ object FunSets {
    */
   type Set = Int => Boolean
 
+  def emptySet: Set = x => false  
+
   /**
    * Indicates whether a set contains a given element.
    */
@@ -55,8 +57,8 @@ object FunSets {
    */
   def forall(s: Set, p: Int => Boolean): Boolean = {
     def iter(a: Int): Boolean = {
-      if (!s(a)) false
-      else if (p(a)) true
+      if (s(a) && !p(a)) false
+      else if (a == bound) true
       else iter(a + 1)
     }
     iter(-bound)
@@ -66,12 +68,22 @@ object FunSets {
    * Returns whether there exists a bounded integer within `s`
    * that satisfies `p`.
    */
-  def exists(s: Set, p: Int => Boolean): Boolean = ???
+  def exists(s: Set, p: Int => Boolean): Boolean = {
+    forall(p, s)
+  }
 
   /**
    * Returns a set transformed by applying `f` to each element of `s`.
    */
-  def map(s: Set, f: Int => Int): Set = ???
+  def map(s: Set, f: Int => Int): Set = {
+    def iter(accu: Set, a: Int): Set = {
+      if (a > bound) accu
+      else if (s(a)) iter(union(accu, singletonSet(f(a))), a + 1)
+      else iter(accu, a + 1)
+    }
+    val accu = emptySet
+    iter(accu, -bound)
+  }
 
   /**
    * Displays the contents of a set

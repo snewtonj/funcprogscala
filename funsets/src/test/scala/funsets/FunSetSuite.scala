@@ -78,6 +78,14 @@ class FunSetSuite extends FunSuite {
     val s2 = singletonSet(2)
     val s3 = singletonSet(3)
     val s4 = union(s1, s2)
+    val s6 = singletonSet(6)
+    def fiveEvens: Set = x => x == 2 || x == 4 || x == 6 || x == 8 || x == 10
+    def fiveOdds: Set = x => x == 1 || x == 3 || x == 5 || x == 7 || x == 9
+    def fivePrimes:  Set = x => x == 1 || x == 2 || x == 3 || x == 5 || x == 7
+    def oneToFour: Set = x => x == 1 || x == 2 || x == 3 || x == 4
+    def primesAndThousand: Set = x => x == 1 || x == 3 || x == 4 || x == 5 || x == 7 || x == 1000
+    def even: Set = x => x % 2 == 0
+    def odd: Set = x => x % 2 != 0
   }
 
   /**
@@ -162,6 +170,36 @@ class FunSetSuite extends FunSuite {
       assert(!s1s2, "forall(s1, s2) should be false")
       val sN = forall(s1, s1)
       assert(sN, "forall(s1, s1) should be true")
+      val sX = forall(s4, s1)
+      assert(!sX, "forall(s4, s1) should be false")
+      assert(!forall(fivePrimes, fiveEvens), "primes are not all even")
+      assert(!forall(fivePrimes, fiveOdds), "primes are not all odd")
+    }
+  }
+
+  test("exists determines if there exists a bounded integer within `s` that satisfies `p`.") {
+    new TestSets {
+       assert(exists(fiveEvens, s6), "6 should be in fiveEvens")
+       assert(!exists(fiveOdds, s6), "No even numbers in the odd set")
+       assert(exists(oneToFour, s2), "2 should be in the set 1,2,3,4")
+    }
+  }
+
+  test("map transforms a given set into another one by applying to each of its elements the given function") {
+    new TestSets {
+      val doubled = map(fiveEvens, x => x * 2)
+      val thousand = map(primesAndThousand, x => x - 1)
+    }
+  }
+
+  test("exists and filter") {
+    new TestSets {
+      val evenAndThree = union(even, s3)
+      val justThree = filter(evenAndThree, odd)
+      assert(contains(justThree, 3), "3 is in the result of filter(evenAndThrre, s3)")
+      assert(exists(evenAndThree, s3), "all even numbers and 3 should contain 3")
+      assert(exists(filter(evenAndThree, odd), s3), "3 should be in s3 and evenAndThree")
+      printSet(filter(evenAndThree, odd))
     }
   }
 }
