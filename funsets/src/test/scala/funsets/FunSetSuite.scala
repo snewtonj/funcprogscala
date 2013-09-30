@@ -195,11 +195,8 @@ class FunSetSuite extends FunSuite {
   test("exists and filter") {
     new TestSets {
       val evenAndThree = union(even, s3)
-      val justThree = filter(evenAndThree, odd)
-      assert(contains(justThree, 3), "3 is in the result of filter(evenAndThrre, s3)")
-      assert(exists(evenAndThree, s3), "all even numbers and 3 should contain 3")
-      assert(exists(filter(evenAndThree, odd), s3), "3 should be in s3 and evenAndThree")
-      printSet(filter(evenAndThree, odd))
+      assert(exists(evenAndThree, odd), "all even numbers and 3 should contain an odd number")
+      assert(contains(filter(evenAndThree, _ % 2 != 0), 3))
     }
   }
 }
