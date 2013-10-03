@@ -68,7 +68,7 @@ abstract class TweetSet {
    */
   def mostRetweeted: Tweet
 
-  def retweetAcc(tweet: Tweet, t: TweetSet): TweetSet
+  def mostAcc(p: Tweet => Boolean, acc: TweetSet, winner: Tweet): TweetSet
 
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
@@ -135,7 +135,7 @@ class Empty extends TweetSet {
 
   def mostRetweeted: Tweet = { throw new NoSuchElementException }
 
-  def retweetAcc(tweet: Tweet, t: TweetSet): TweetSet = t
+  def mostAcc(p: Tweet => Boolean, acc: TweetSet, winner: Tweet): TweetSet = new Empty
 
   override def toString  = ""
 }
@@ -155,17 +155,26 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   }
 
   def mostRetweeted: Tweet = {
-    retweetAcc(elem, this)
+    mostAcc(retweetFilter, new Empty, elem)
     elem
   }
-  
-  def retweetAcc(tweet: Tweet, t: TweetSet): TweetSet = {
-    if (elem.retweets < tweet.retweets)
-      left.retweetAcc(tweet, right.retweetAcc(tweet, new Empty))
-    else
-      left.retweetAcc(tweet, right.retweetAcc(tweet, this))
 
-      
+  def mostAcc(p: Tweet => Boolean, acc: TweetSet, winner: Tweet): TweetSet = {
+    if(p(winner))
+      left.mostAcc(p, right.mostAcc(p, acc.incl(elem), elem), elem)
+   else
+      left.mostAcc(p, right.mostAcc(p, acc, elem), elem)
+  }
+
+  def retweetFilter(t: Tweet): Boolean = {
+    elem.retweets > t.retweets
+  }
+
+  def max(a: Int, b: Int) :Int = {
+    if (a > b)
+      a
+    else
+      b
   }
 
   /**
@@ -199,7 +208,7 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   }
 
   def descendingByRetweet: TweetList = {
-    new Cons(elem, Nil)
+    new Cons(elem, left.descendingByRetweet)
   }
 
   override def toString = "{" + left + elem.text + right + "}"
@@ -239,17 +248,21 @@ object GoogleVsApple {
     findTweetsMatching(TweetReader.allTweets, apple)
 
   def findTweetsMatching(tweets: TweetSet, terms: List[String]): TweetSet = {
-    tweets.filter(t => terms.exists(t.text.contains(_)))
+    
+    tweets.filter(
+      t => terms.exists { term => t.text.contains(term) }
+    )
   }
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
-  lazy val trending: TweetList = new Cons(appleTweets.mostRetweeted, Nil)
+  lazy val trending: TweetList = googleTweets.union(appleTweets).descendingByRetweet
+
 }
 
 object Main extends App {
+  //GoogleVsApple.googleTweets foreach println
   // Print the trending tweets
-  println("Trends...")
   GoogleVsApple.trending foreach println
 }
