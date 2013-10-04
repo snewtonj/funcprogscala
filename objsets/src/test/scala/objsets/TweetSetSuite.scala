@@ -83,15 +83,21 @@ class TweetSetSuite extends FunSuite {
   }
 
   test("find tweets matching") {
-    val terms = List("Apple")
+    val terms = List("NASA")
     val matches = GoogleVsApple.findTweetsMatching(TweetReader.allTweets, terms)
+    var tweetCount = 0
+    matches.foreach(tweet => tweetCount = tweetCount + 1)
+    assert(tweetCount == 5, tweetCount)
     val winner = matches.mostRetweeted
+    val expected = 242
+    assert(winner.retweets == expected, "Wrong retweet count, expected %d, got %d".format(expected, winner.retweets))
   }
 
   test("descending: google") {
-    val googleTweets = GoogleVsApple.googleTweets
-    val count = googleTweets.mostRetweeted.retweets
-    assert(count == 290, "Wrong retweet count, expected %d, got %d".format(290, count))
+    val tweets = GoogleVsApple.appleTweets
+    val count = tweets.mostRetweeted.retweets
+    val expected = 321
+    assert(count == expected, "Wrong retweet count, expected %d, got %d".format(expected, count))
   }
 
   test("trends") {
