@@ -69,4 +69,24 @@ class TweetSetSuite extends FunSuite {
       assert(trends.head.user == "a" || trends.head.user == "b")
     }
   }
+
+  test("find tweets matching") {
+    val terms = List("Apple")
+    val matches = GoogleVsApple.findTweetsMatching(TweetReader.allTweets, terms)
+    val winner = matches.mostRetweeted
+  }
+
+  test("descending: google") {
+    val googleTweets = GoogleVsApple.googleTweets
+    val count = googleTweets.mostRetweeted.retweets
+    assert(count == 290, "Wrong retweet count, expected %d, got %d".format(290, count))
+    googleTweets.foreach(t => println("%d %s".format(t.retweets, t.text)))
+  }
+
+  test("trends") {
+    val trending = GoogleVsApple.trending
+    assert(!trending.isEmpty, "empty")
+    assert(trending.head.retweets > 0)
+  }
+
 }
