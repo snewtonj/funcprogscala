@@ -70,6 +70,18 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
+  test("descending: just two") {
+    val lowerTweet = new Tweet("luser", "lower", 20)
+    val upperTweet = new Tweet("ruser", "upper", 55)
+    val e = new Empty
+    val setOfTwo = e.incl(lowerTweet).incl(upperTweet)
+    val winner = setOfTwo.mostRetweeted
+    assert(winner.retweets == 55, "Winner should have %d retweets, was %d".format(upperTweet.retweets, winner.retweets))
+    val order = setOfTwo.descendingByRetweet
+    assert(!order.isEmpty, "should be 2 tweets")
+    assert(order.head.text == "upper", "should be upper, got %s".format(order.head.text))
+  }
+
   test("find tweets matching") {
     val terms = List("Apple")
     val matches = GoogleVsApple.findTweetsMatching(TweetReader.allTweets, terms)
@@ -80,7 +92,6 @@ class TweetSetSuite extends FunSuite {
     val googleTweets = GoogleVsApple.googleTweets
     val count = googleTweets.mostRetweeted.retweets
     assert(count == 290, "Wrong retweet count, expected %d, got %d".format(290, count))
-    googleTweets.foreach(t => println("%d %s".format(t.retweets, t.text)))
   }
 
   test("trends") {

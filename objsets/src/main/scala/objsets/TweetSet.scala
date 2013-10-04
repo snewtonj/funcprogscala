@@ -68,7 +68,7 @@ abstract class TweetSet {
    */
   def mostRetweeted: Tweet
 
-  def mostAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet
+  def mostAcc(t: Tweet): Tweet
 
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
@@ -135,7 +135,7 @@ class Empty extends TweetSet {
 
   def mostRetweeted: Tweet = { throw new NoSuchElementException }
 
-  def mostAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = new Empty
+  def mostAcc(t: Tweet) = t
 
   override def toString  = ""
 }
@@ -143,28 +143,30 @@ class Empty extends TweetSet {
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def filter(p: Tweet => Boolean): TweetSet = {
-    left.filterAcc(p, right.filterAcc(p, filterAcc(p, new Empty)))
+    filterAcc(p, new Empty)
   }
 
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
-    if (p(elem)) acc.incl(elem) else acc
+    if (p(elem)) 
+      left.filterAcc(p, right.filterAcc(p, acc.incl(elem)))
+    else
+      left.filterAcc(p, right.filterAcc(p, acc))
   }
 
 
   def retweetFilter(t: Tweet): Boolean = {
-    elem.retweets > t.retweets
+    t.retweets > elem.retweets
   }
 
   def mostRetweeted: Tweet = {
-    val result = mostAcc(retweetFilter, new Empty)
-    elem
+    mostAcc(elem)
   }
 
-  def mostAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
-    if (p(elem))
-      left.mostAcc(p, right.mostAcc(p, acc.incl(elem)))
+  def mostAcc(t: Tweet): Tweet = {
+    if(retweetFilter(t))
+      left.mostAcc(right.mostAcc(t))
     else
-      left.mostAcc(p, right.mostAcc(p, acc))
+      left.mostAcc(right.mostAcc(elem))
   }
 
   /**
@@ -198,13 +200,8 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   }
 
   def descendingByRetweet: TweetList = {
-    val listHead = mostRetweeted
-    new Cons(listHead, snake(remove(listHead)))
-  }
-
-  private def snake(tweets: TweetSet): TweetList = {
-    val listHead = tweets.mostRetweeted
-    new Cons(listHead, snake(tweets.remove(listHead)))
+    val top = mostRetweeted
+    new Cons(top, remove(top).descendingByRetweet)
   }
 
   override def toString = "{" + left + elem.text + right + "}"
@@ -243,22 +240,16 @@ object GoogleVsApple {
   lazy val appleTweets: TweetSet = 
     findTweetsMatching(TweetReader.allTweets, apple)
 
+
   def findTweetsMatching(tweets: TweetSet, terms: List[String]): TweetSet = {
-    tweets.filter(
-      tweet => terms.exists {
-        term => {
-          tweet.text.contains(term)
-        }
-      }
-    )
-    tweets
+   tweets.filter(tweet => terms.exists(term => tweet.text.contains(term)))
   }
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
   lazy val trending: TweetList = {
-    googleTweets.union(appleTweets).descendingByRetweet
+    appleTweets.union(googleTweets).descendingByRetweet
   }
 }
 
