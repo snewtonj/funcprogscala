@@ -91,12 +91,8 @@ object Huffman {
   def increment(c: Char, xs: List[(Char, Int)]): List[(Char, Int)] = {
     xs match {
       case List() => List((c, 1))
-      case (e, n) :: tail => {
-        if (e == c)
-          (e, n + 1) :: increment(e, tail)
-        else
-          (e, n) :: increment(e, tail)
-      }
+      case (e, x) :: tail if (e == c) => (e, x + 1) :: tail
+      case (e, x) :: tail => (e, x) :: increment(c, tail)
     }
   }
   
@@ -107,12 +103,29 @@ object Huffman {
    * head of the list should have the smallest weight), where the weight
    * of a leaf is the frequency of the character.
    */
-  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = ???
+  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
+    order(freqs, List())
+  }
+
+  def order(freqs: List[(Char, Int)], ascending: List[Leaf]): List[Leaf] = {
+    freqs match {
+      case List() => ascending
+      case (e, x) :: tail if ascending.isEmpty =>  order(tail, Leaf(e,x) :: ascending)
+      // if the weight of this node is less than the weight of the head of ascending list,
+      // prepend it to the head
+      case (e, x) :: tail if x < ascending.head.weight => Leaf(e, x) :: order(tail, ascending)
+      // otherwise
+      case (e, x) :: tail => order(tail, ascending)
+    }
+  }
 
   /**
    * Checks whether the list `trees` contains only one single code tree.
    */
-  def singleton(trees: List[CodeTree]): Boolean = ???
+  def singleton(trees: List[CodeTree]): Boolean = trees match {
+    case head :: List() => true
+    case _ => false
+  }
 
   /**
    * The parameter `trees` of this function is a list of code trees ordered

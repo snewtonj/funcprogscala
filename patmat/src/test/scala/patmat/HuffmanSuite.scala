@@ -33,8 +33,12 @@ class HuffmanSuite extends FunSuite {
   test("times") {
     new TestTrees {
       val counts = times(List('h', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd'))
-      println(counts)
-      assert(counts.length == 10, counts.length)
+      assert(counts.length == 9, counts.length)
+      counts match {
+        case List(('l', x)) => assert(x == 3)
+        case List((',', x)) => assert(x == 1)
+        case _ =>
+      }
     }
   }
 
