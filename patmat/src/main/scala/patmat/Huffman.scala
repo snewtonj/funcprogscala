@@ -104,18 +104,28 @@ object Huffman {
    * of a leaf is the frequency of the character.
    */
   def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
-    order(freqs, List())
+    val empty: List[Leaf] = List()
+    freqs match {
+      case List() => empty
+      case _ => {
+        val head = freqs.head
+        order(freqs.tail, List(Leaf(head._1, head._2)))
+      }
+    }
   }
 
   def order(freqs: List[(Char, Int)], ascending: List[Leaf]): List[Leaf] = {
+    def prepend(a: List[Leaf], b: List[Leaf]): List[Leaf] = {
+      a match {
+        case List() => b
+        case head :: tail => head :: prepend(tail, b)
+      }
+    }
     freqs match {
       case List() => ascending
-      case (e, x) :: tail if ascending.isEmpty =>  order(tail, Leaf(e,x) :: ascending)
-      // if the weight of this node is less than the weight of the head of ascending list,
-      // prepend it to the head
-      case (e, x) :: tail if x < ascending.head.weight => Leaf(e, x) :: order(tail, ascending)
-      // otherwise
-      case (e, x) :: tail => order(tail, ascending)
+      case (e,x) :: tail if ascending.isEmpty => Leaf(e, x) :: ascending
+      case (e,x) :: tail if x < ascending.head.weight => order(tail, Leaf(e,x) :: ascending)
+      case (e,x) :: tail => prepend(ascending, order(freqs, ascending.tail))
     }
   }
 

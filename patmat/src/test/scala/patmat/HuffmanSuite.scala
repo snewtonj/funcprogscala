@@ -42,6 +42,14 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
+  test("makeOrderedLeafList for one element") {
+    assert(makeOrderedLeafList(List(('t', 2))) === List(Leaf('t', 2)))
+  }
+
+  test("makeOrderedLeafList for two elements already in order") {
+    assert(makeOrderedLeafList(List(('t', 2), ('a', 3))) === List(Leaf('t', 2), Leaf('a', 3)))
+  }
+
   test("makeOrderedLeafList for some frequency table") {
     assert(makeOrderedLeafList(List(('t', 2), ('e', 1), ('x', 3))) === List(Leaf('e',1), Leaf('t',2), Leaf('x',3)))
   }
