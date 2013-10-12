@@ -115,17 +115,11 @@ object Huffman {
   }
 
   def order(freqs: List[(Char, Int)], ascending: List[Leaf]): List[Leaf] = {
-    def prepend(a: List[Leaf], b: List[Leaf]): List[Leaf] = {
-      a match {
-        case List() => b
-        case head :: tail => head :: prepend(tail, b)
-      }
-    }
     freqs match {
       case List() => ascending
       case (e,x) :: tail if ascending.isEmpty => Leaf(e, x) :: ascending
-      case (e,x) :: tail if x < ascending.head.weight => order(tail, Leaf(e,x) :: ascending)
-      case (e,x) :: tail => prepend(ascending, order(freqs, ascending.tail))
+      case (e,x) :: tail if x > ascending.head.weight => order(tail, ascending.head :: Leaf(e,x) :: ascending.tail)
+      case (e,x) :: tail => Leaf(e,x) :: order(freqs.tail, ascending)
     }
   }
 
