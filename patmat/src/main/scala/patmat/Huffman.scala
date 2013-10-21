@@ -146,6 +146,7 @@ object Huffman {
    */
   def combine(trees: List[CodeTree]): List[CodeTree] = {
     trees match {
+      case Nil => Nil
       case tree: List[CodeTree] if singleton(tree) => tree
       case left :: right => {
         makeCodeTree(left, right.head) :: right.tail
@@ -196,7 +197,35 @@ object Huffman {
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
    */
-  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = List('a', 'b')
+  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
+    println("bits: "+bits)
+    println("tree: "+tree)
+
+    def find(tree: CodeTree, bit: Bit): Char = {
+      tree match {
+        case head: Fork  =>
+          if (bit == 0)
+            find(head.left, bit)
+          else
+            find(head.right, bit)
+        case head: Leaf => {
+          println("found %s".format(head))
+          head.char
+        }
+      }
+    }
+
+    def assemble(tree: CodeTree, bits: List[Bit], acc: List[Char]): List[Char] = {
+      bits match {
+        case Nil => acc
+        case head :: Nil => find(tree, head) :: acc
+        case head :: tail => find(tree, head) ::  assemble(tree, tail, acc)
+      }
+    }
+
+    val decoded = List()
+    assemble(tree, bits, decoded);
+  }
 
   /**
    * A Huffman coding tree for the French language.
@@ -224,7 +253,21 @@ object Huffman {
    * This function encodes `text` using the code tree `tree`
    * into a sequence of bits.
    */
-  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = List(1)
+  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    // for each Char in text, walk down the tree and record left = 0, right = 1
+    def step(tree: CodeTree, text: List[Char]): List[Bit] = {
+      text match {
+        case Nil => List(0)
+        case List(_,_) => step(tree, text.tail)
+        case head :: Nil => 1 :: step(tree, text.tail)
+      }
+    }
+
+    def walk(tree: CodeTree, text: List[Char], acc: List[Bit]): List[Bit] = {
+      acc
+    }
+    step (tree, text)
+  }
 
 
   // Part 4b: Encoding using code table
