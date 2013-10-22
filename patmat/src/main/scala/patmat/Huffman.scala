@@ -198,31 +198,29 @@ object Huffman {
    * the resulting list of characters.
    */
   def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
-    println("bits: "+bits)
-    println("tree: "+tree)
 
-    def find(tree: CodeTree, bit: Bit): Char = {
+    def walk(tree: CodeTree, bits: List[Bit], acc: List[Char]): List[Char] = {
       tree match {
-        case head: Fork  =>
-          if (bit == 0)
-            find(head.left, bit)
-          else
-            find(head.right, bit)
-        case head: Leaf => {
-          println("found %s".format(head))
-          head.char
-        }
+         case node: Fork =>
+	   bits match {
+             case Nil => acc
+             case head :: tail =>
+               if (head == 0)
+                  walk(node.left, tail, acc)
+               else
+                  walk(node.right, tail, acc)
+           }
+         case node: Leaf =>  node.char :: acc
       }
     }
+    
 
     def assemble(tree: CodeTree, bits: List[Bit], acc: List[Char]): List[Char] = {
       bits match {
         case Nil => acc
-        case head :: Nil => find(tree, head) :: acc
-        case head :: tail => find(tree, head) ::  assemble(tree, tail, acc)
+        case bit :: tail => assemble(tree, tail, walk(tree, bits, acc))
       }
     }
-
     val decoded = List()
     assemble(tree, bits, decoded);
   }
@@ -243,7 +241,7 @@ object Huffman {
   /**
    * Write a function that returns the decoded secret
    */
-  def decodedSecret: List[Char] = List('h', 'e')
+  def decodedSecret: List[Char] = decode(frenchCode, secret)
 
 
 
@@ -258,8 +256,8 @@ object Huffman {
     def step(tree: CodeTree, text: List[Char]): List[Bit] = {
       text match {
         case Nil => List(0)
-        case List(_,_) => step(tree, text.tail)
         case head :: Nil => 1 :: step(tree, text.tail)
+        case head :: tail => step(tree, text.tail)
       }
     }
 
