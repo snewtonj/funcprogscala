@@ -33,7 +33,32 @@ object Anagrams {
    *  Note: the uppercase and lowercase version of the character are treated as the
    *  same character, and are represented as a lowercase character in the occurrence list.
    */
-  def wordOccurrences(w: Word): Occurrences = ???
+  def wordOccurrences(w: Word): Occurrences = {
+    val lw = w.toLowerCase
+    val acc = Nil
+    def doInsert(c: Char)(acc: Occurrences): Occurrences = {
+      acc match {
+        case Nil => List((c, 1))
+        case List((x: Char, n: Int), _) => {
+          println(acc, x, n)
+          c.compare(x) match {
+            case 0 => (c, 1) :: acc
+            case m => 
+              if (m > 0)
+                acc ::: List((c, 1))
+              else
+               doInsert(c)(acc.tail)
+          }
+        }
+        case _ => {
+          println
+          acc
+        }
+      }
+    }
+    lw.map(x => doInsert(x)(acc))
+    acc
+  }
 
   /** Converts a sentence into its character occurrence list. */
   def sentenceOccurrences(s: Sentence): Occurrences = ???
