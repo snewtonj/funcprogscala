@@ -28,40 +28,54 @@ object Anagrams {
    */
   val dictionary: List[Word] = loadDictionary
 
+  def doInsert(c: Char, acc: Occurrences): Occurrences = {
+
+    acc match {
+      case Nil => List((c, 1))
+      case(x: Char, n: Int) :: Nil => {
+        val f = c.compare(x)
+        if (f == 0)
+          (c, n + 1) :: List()
+        else if (f < 0)
+          (c, 1) :: acc.head :: List()
+        else
+          acc.head :: List((c, 1))
+      }
+      case (x: Char, n: Int) :: tail => {
+        val f = c.compare(x)
+        if (f == 0)
+          (c, n + 1) :: tail // c == x we found the character
+        else if (f < 0)
+          (c, 1) :: acc.head :: tail
+        else
+          acc.head :: doInsert(c, tail)
+      }
+    }
+  }
+
   /** Converts the word into its character occurence list.
    *  
    *  Note: the uppercase and lowercase version of the character are treated as the
    *  same character, and are represented as a lowercase character in the occurrence list.
    */
   def wordOccurrences(w: Word): Occurrences = {
+
+    def traverse(w: Word, acc: Occurrences): Occurrences = {
+      if (w.isEmpty)
+        acc
+      else
+        traverse(w.tail, doInsert(w.head, acc))
+    }
+
     val lw = w.toLowerCase
     val acc = Nil
-    def doInsert(c: Char)(acc: Occurrences): Occurrences = {
-      acc match {
-        case Nil => List((c, 1))
-        case List((x: Char, n: Int), _) => {
-          println(acc, x, n)
-          c.compare(x) match {
-            case 0 => (c, 1) :: acc
-            case m => 
-              if (m > 0)
-                acc ::: List((c, 1))
-              else
-               doInsert(c)(acc.tail)
-          }
-        }
-        case _ => {
-          println
-          acc
-        }
-      }
-    }
-    lw.map(x => doInsert(x)(acc))
-    acc
+    traverse(lw, acc)
   }
 
   /** Converts a sentence into its character occurrence list. */
-  def sentenceOccurrences(s: Sentence): Occurrences = ???
+  def sentenceOccurrences(s: Sentence): Occurrences = {
+    for (word <- s; w <- wordOccurrences(word)) yield w
+  }
 
   /** The `dictionaryByOccurrences` is a `Map` from different occurrences to a sequence of all
    *  the words that have that occurrence count.

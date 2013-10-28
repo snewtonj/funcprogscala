@@ -14,6 +14,22 @@ class AnagramsSuite extends FunSuite {
     assert(wordOccurrences("abcd") === List(('a', 1), ('b', 1), ('c', 1), ('d', 1)))
   }
 
+  test("doInsert: b into empty list") {
+    assert(doInsert('b', List()) === List(('b',1)))
+  }
+
+  test("doInsert: a into b") {
+    assert(doInsert('a', List(('b', 1))) === List(('a',1),('b',1)))
+  }
+
+  test("doInsert: b into a") {
+    assert(doInsert('b', List(('a', 1))) === List(('a', 1),('b',1)))
+  }
+
+  test("doInsert: r into et") {
+    assert(doInsert('r', List(('e',1),('t',1))) === List(('e',1),('r', 1),('t',1)))
+  }
+
   test("wordOccurrences: Robert") {
     assert(wordOccurrences("Robert") === List(('b', 1), ('e', 1), ('o', 1), ('r', 2), ('t', 1)))
   }
