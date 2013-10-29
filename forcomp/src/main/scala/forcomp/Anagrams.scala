@@ -17,7 +17,7 @@ object Anagrams {
    *  
    *  Any list of pairs of lowercase characters and their frequency which is not sorted
    *  is **not** an occurrence list.
-   *  
+`   *  
    *  Note: If the frequency of some character is zero, then that character should not be
    *  in the list.
    */
@@ -124,7 +124,19 @@ object Anagrams {
    *  Note that the order of the occurrence list subsets does not matter -- the subsets
    *  in the example above could have been displayed in some other order.
    */
-  def combinations(occurrences: Occurrences): List[Occurrences] = ???
+  def combinations(occurrences: Occurrences): List[Occurrences] = {
+    def all(e: (Char, Int), occurrences: Occurrences): List[Occurrences] = {
+      occurrences match {
+        case Nil => List(List(e))
+        case head :: tail => (e :: head :: tail) :: List(head) :: all(e, tail)
+      }
+    }
+
+    occurrences match {
+      case Nil => List(List())
+      case head :: tail => for(c <- combinations(tail); a <- all(head, c)) yield a
+    }
+  }
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
    * 
@@ -136,7 +148,9 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
+    x.filter(in => !y.contains(in))
+  }
 
   /** Returns a list of all anagram sentences of the given sentence.
    *  
@@ -178,6 +192,8 @@ object Anagrams {
    *
    *  Note: There is only one anagram of an empty sentence.
    */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = ???
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+    List(dictionaryByOccurrences(sentenceOccurrences(sentence)))
+  }
 
 }
