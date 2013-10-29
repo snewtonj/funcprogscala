@@ -66,6 +66,9 @@ class AnagramsSuite extends FunSuite {
   }
 
 
+  test("every pair") {
+    assert(everyPair(('s', 5), List()) === List(('s',5),('s',4),('s',3),('s',2),('s',1)))
+  }
 
   test("combinations: []") {
     assert(combinations(Nil) === List(Nil))

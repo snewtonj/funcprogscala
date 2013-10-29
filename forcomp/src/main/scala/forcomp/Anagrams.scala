@@ -102,6 +102,12 @@ object Anagrams {
     dictionaryByOccurrences(wordOccurrences(word))
   }
 
+  def everyPair(e: (Char, Int), acc: Occurrences): Occurrences = {
+    e match {
+      case(c, 0) => acc
+      case (c, n) => (c, n) :: everyPair((c, n - 1), acc)
+    }
+  }
   /** Returns the list of all subsets of the occurrence list.
    *  This includes the occurrence itself, i.e. `List(('k', 1), ('o', 1))`
    *  is a subset of `List(('k', 1), ('o', 1))`.
@@ -125,10 +131,15 @@ object Anagrams {
    *  in the example above could have been displayed in some other order.
    */
   def combinations(occurrences: Occurrences): List[Occurrences] = {
+
     def all(e: (Char, Int), occurrences: Occurrences): List[Occurrences] = {
       occurrences match {
-        case Nil => List(List(e))
-        case head :: tail => (e :: head :: tail) :: List(head) :: all(e, tail)
+        case Nil => List(e) :: List(everyPair(e, List()))
+        case head :: tail => {
+          println("e, head, tail", (e :: head :: tail))
+          println("List(head)", List(head))
+          (e :: head :: tail) :: List(head) :: all(e, tail)
+        }
       }
     }
 
