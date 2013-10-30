@@ -108,6 +108,16 @@ object Anagrams {
       case (c, n) => (c, n) :: everyPair((c, n - 1), acc)
     }
   }
+
+  def allLists(occurrences: Occurrences, acc: Occurrences): Occurrences = {
+   // list
+   // the list plus its tail
+    occurrences match {
+      case Nil => acc
+      case head :: tail => head :: allLists(tail, acc) ::: occurrences
+    }
+  }
+
   /** Returns the list of all subsets of the occurrence list.
    *  This includes the occurrence itself, i.e. `List(('k', 1), ('o', 1))`
    *  is a subset of `List(('k', 1), ('o', 1))`.
@@ -131,7 +141,7 @@ object Anagrams {
    *  in the example above could have been displayed in some other order.
    */
   def combinations(occurrences: Occurrences): List[Occurrences] = {
-
+/*
     def all(e: (Char, Int), occurrences: Occurrences): List[Occurrences] = {
       occurrences match {
         case Nil => List(e) :: List(everyPair(e, List()))
@@ -142,10 +152,14 @@ object Anagrams {
         }
       }
     }
-
+ */
     occurrences match {
       case Nil => List(List())
-      case head :: tail => for(c <- combinations(tail); a <- all(head, c)) yield a
+//      case head :: tail => for(c <- allLists(occurrences, List()); a <- everyPair(head, List(c))) yield List(a)
+      case head :: tail => {
+        val listOfLists = allLists(occurrences, List())
+        for (p <- listOfLists; pl <- everyPair(p, List())) yield List(pl)
+      }
     }
   }
 
@@ -204,7 +218,10 @@ object Anagrams {
    *  Note: There is only one anagram of an empty sentence.
    */
   def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
-    List(dictionaryByOccurrences(sentenceOccurrences(sentence)))
+    sentence match {
+      case Nil => List(List())
+      case _ =>  List(dictionaryByOccurrences(sentenceOccurrences(sentence)))
+    }
   }
 
 }
