@@ -58,7 +58,7 @@ trait StringParserTerrain extends GameDef {
 
   def fP(levelVector: Vector[Vector[Char]])(p: Pos): Boolean = {
     p match {
-      case Pos(0,0) => true
+      case Pos(0,0) => levelVector(0)(0) != '-'
       case Pos(x,y) =>
         if (x < levelVector.length) {
           val row = levelVector(x)
@@ -79,7 +79,13 @@ trait StringParserTerrain extends GameDef {
    * Hint: you can use the functions `indexWhere` and / or `indexOf` of the
    * `Vector` class
    */
-  def findChar(c: Char, levelVector: Vector[Vector[Char]]): Pos = ???
+  def findChar(c: Char, levelVector: Vector[Vector[Char]]): Pos = {
+     def charMatch(p: Char): Boolean = p == c
+     val row = levelVector.filter(r => {
+       r.indexWhere(charMatch(_), 0) != -1
+     })
+     Pos(levelVector.indexOf(row(0)), row(0).indexOf(c))
+  }
 
   private lazy val vector: Vector[Vector[Char]] =
     Vector(level.split("\n").map(str => Vector(str: _*)): _*)
